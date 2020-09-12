@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+
+<head>
+    <title> Procrastihater calendar</title>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title> basic init</title>
+    <link rel="stylesheet" href="https://cdn.dhtmlx.com/scheduler/edge/dhtmlxscheduler.css">
+    <script src="https://cdn.dhtmlx.com/scheduler/edge/dhtmlxscheduler.js"></script>
+
+    <!-- scheduler
+    <script src="https://cdn.dhtmlx.com/scheduler/edge/dhtmlxscheduler.js" charset="utf-8"></script>
+    <link href="https://cdn.dhtmlx.com/scheduler/edge/dhtmlxscheduler_material.css" rel="stylesheet" type="text/css"
+        charset="utf-8"> -->
+    scheduler recurring tasks extension
+    <!-- <script src="https://cdn.dhtmlx.com/scheduler/edge/ext/dhtmlxscheduler_recurring.js"></script> -->
+    <style>
+        html,
+        body {
+            margin: 0px;
+            padding: 0px;
+            height: 100%;
+            overflow: hidden;
+        }
+    </style>
+<script>
+    function init() {
+// set format of dates in the data source
+scheduler.config.xml_date = "%Y-%m-%d %H:%i";
+scheduler.init("scheduler_here", new Date(2018,8,20), "month");
+//enables dynamic loading
+scheduler.setLoadMode("day");
+
+//load data from backend
+scheduler.load("/data", "json");
+//connect backend to schedduler
+var dp = new dataProcessor("/data");
+//set data to exchange mode
+dp.init(scheduler);
+dp.setTransactionMode("POST", false);
+    }
+</script>
+</head>
+
+<body onload="init();">
+    <div id="scheduler_here" class="dhx_cal_container" style='width:100%; height:100%;'>
+        <div class="dhx_cal_navline">
+            <div class="dhx_cal_prev_button">&nbsp;</div>
+            <div class="dhx_cal_next_button">&nbsp;</div>
+            <div class="dhx_cal_today_button"></div>
+            <div class="dhx_cal_date"></div>
+            <div class="dhx_cal_tab" name="day_tab"></div>
+            <div class="dhx_cal_tab" name="week_tab"></div>
+            <div class="dhx_cal_tab" name="month_tab"></div>
+        </div>
+        <div class="dhx_cal_header"></div>
+    </div>
+    <div class="dhx_cal_data">
+    </div>
+    </div>
+
+    <script>
+
+        // set format of dates in the data source
+        scheduler.config.xml_date = "%Y-%m-%d %H:%i";
+        var dp = new dataProcessor("/data");
+        dp.init(scheduler);
+        dp.setTransactionMode("POST", false);
+
+        scheduler.init('scheduler_here', new Date(2018, 0, 20), "month");
+        scheduler.setLoadMode("day");
+        //load data from the backend
+        scheduler.load("/events", "json");
+
+        scheduler.load("http://localhost:3000/data", "json");
+
+        var dp = new dataProcessor("http://localhost:3000/data");
+        // use RESTful API on the backend
+        dp.setTransactionMode("REST");
+        dp.init(scheduler);
+
+        dp.attachEvent("onAfterUpdate", function (id, action, tid, response) {
+            if (action == "error") {
+                // do something here
+                alert("Server error: " + response.message);
+            }
+        });
+
+    </script>
+</body>
+
+</html>
